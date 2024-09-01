@@ -124,13 +124,9 @@ namespace MorePlayers
 
                 {
                     
-                    SteamId steamId = playerInfoList[i].steamId;
-
-                    var username = Steamworks.SteamClient.Name;
-
                     float yPosition = 130 + i * 25;
                     
-                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {username}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {i + 1}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
                 }
 
             }
