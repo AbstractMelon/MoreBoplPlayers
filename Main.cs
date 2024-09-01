@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -9,6 +9,8 @@ using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
 using Steamworks;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace MorePlayers
 {
