@@ -6,9 +6,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Logging;
 using HarmonyLib;
-using MorePlayers;
 
-namespace MoreMultiPlayer;
+namespace MorePlayers;
 
 public class HostPatch
 {

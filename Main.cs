@@ -10,7 +10,7 @@ using HarmonyLib.Tools;
 
 namespace MorePlayers
 {
-    [BepInPlugin("com.MorePlayersTeam.MorePlayers", "More Players", "More Players")]
+    [BepInPlugin("com.MorePlayersTeam.MorePlayers", "MorePlayers", "1.0.0")]
     public class Main : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
@@ -131,7 +131,7 @@ namespace MorePlayers
         private void Awake()
         {
             Log = Logger;
-            Log.LogInfo("Logger loaded!");
+            Log.LogInfo("secret number 5");
 
             HarmonyFileLog.Enabled = true;
             Log.LogInfo(HarmonyFileLog.FileWriterPath);
@@ -162,7 +162,7 @@ namespace MorePlayers
             patcher.AddTranspiler(startTranspiler);
             patcher.Patch();
 
-            Logger.LogInfo($"More bopls can now bopl!");
+            Logger.LogInfo($"More players aquired!!");
         }
 
 
