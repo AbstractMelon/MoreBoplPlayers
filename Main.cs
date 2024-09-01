@@ -83,6 +83,55 @@ namespace MorePlayers
                 Log.LogError("Failed to patch GameSessionHandler.LoadNextLevelScene");
             }
         }
+        
+        void OnGUI() // Adds a leaderboard and probably other GUI stuff in the future
+        {
+            var players = PlayerHandler.Get().NumberOfPlayers(); // Value
+            var playerInfoList = PlayerHandler.Get().PlayerList(); // List
+            GUI.color = new UnityEngine.Color(0, 0, 0, 0.5f);
+
+            GUIStyle style = new GUIStyle(); // The style of the GUI so it looks pretty
+            style.fontSize = 20;
+            style.normal.textColor = UnityEngine.Color.white;
+            if (GUI.Button(new Rect(350, 50, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
+            {
+                if (isVisible == false)
+                {
+                    isVisible = true;
+                } else if (isVisible == true)
+                {
+                    isVisible = false;
+                }
+            }
+            if (isVisible)
+            {
+                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style);
+                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
+            }
+
+            
+
+
+            for (int i = 0; i < playerInfoList.Count; i++) // Does the leaderboard stuff
+            {
+                if (isVisible == false)
+                {
+                    return;
+                } else
+
+                {
+                    
+                    SteamId steamId = playerInfoList[i].steamId;
+
+                    var username = Steamworks.SteamClient.Name;
+
+                    float yPosition = 130 + i * 25;
+                    
+                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {username}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+                }
+
+            }
+        }
 
         private void Awake()
         {
