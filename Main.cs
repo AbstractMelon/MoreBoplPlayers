@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
@@ -15,6 +16,8 @@ namespace MorePlayers
     {
         internal static ManualLogSource Log;
         private Harmony harmony;
+
+        private ConfigEntry<int> maxPlayers;
 
         private static IEnumerable<CodeInstruction> SteamManagerCreateFriendLobbyPatch(
             IEnumerable<CodeInstruction> instructions)
@@ -56,14 +59,13 @@ namespace MorePlayers
                     if (!nextInstruction.LoadsField(fromB))
                     {
                         Log.LogInfo(
-                            $"Candidate patch instruction is not loading {fromB} field was: {nextInstruction.opcode}:{nextInstruction.operand}");
+                            $"Candidate patch instruction is not loading {fromB} field: {nextInstruction.opcode}:{nextInstruction.operand}");
                         yield return instruction;
                         yield return nextInstruction;
                         continue;
                     }
 
-                    Log.LogInfo($"Found {fromA} field load instruction to patch");
-                    Log.LogInfo($"Found {fromB} field load instruction to patch");
+                    Log.LogInfo($"Found {fromA} and {fromB} field load instructions to patch");
 
                     yield return new CodeInstruction(instruction.opcode, toA);
                     yield return new CodeInstruction(nextInstruction.opcode, toB);
@@ -82,60 +84,15 @@ namespace MorePlayers
             }
         }
 
-        void Test()
-        {
-             SteamManagerExtended.startParameters = default;
-            SteamManagerExtended.startParameters.seqNum = 5;
-            SteamManagerExtended.startParameters.nrOfPlayers = (byte)(1 + 1);
-            SteamManagerExtended.startParameters.nrOfAbilites = (byte)Settings.Get().NumberOfAbilities;
-            SteamManagerExtended.startParameters.currentLevel = GameSession.CurrentLevel();
-            SteamManagerExtended.startParameters.seed = (uint)Environment.TickCount;
-
-            SteamManagerExtended.startParameters.Initialize(1);
-
-            SteamManagerExtended.startParameters.p_ids[0] = 10;
-            SteamManagerExtended.startParameters.p_teams[0] = 1;
-            SteamManagerExtended.startParameters.p_colors[0] = 2;
-            SteamManagerExtended.startParameters.p_ability1s[0] = 3;
-            SteamManagerExtended.startParameters.p_ability2s[0] = 4;
-            SteamManagerExtended.startParameters.p_ability3s[0] = 5;
-
-            for (int i = 1; i < 2; i++)
-            {
-                SteamManagerExtended.startParameters.p_ids[i] = (byte)i;
-                SteamManagerExtended.startParameters.p_teams[i] = (byte)i;
-                SteamManagerExtended.startParameters.p_colors[i] = (byte)i;
-                SteamManagerExtended.startParameters.p_ability1s[i] = 4;
-                SteamManagerExtended.startParameters.p_ability2s[i] = 24;
-                SteamManagerExtended.startParameters.p_ability3s[i] = 56;
-            }
-
-            byte b = (byte)(SteamManager.instance.dlc.HasDLC() ? 1u : 0u);
-            for (int i = 0; i < 1; i++)
-            {
-                if (true)
-                {
-                    b = (byte)(b | (1 << i + 1));
-                }
-            }
-
-            SteamManagerExtended.startParameters.isDemoMask = b;
-
-            byte[] startRequestBuffer =
-                new byte[NetworkToolsExtensions.GetMultiStartRequestSize(SteamManagerExtended.startParameters)];
-
-            NetworkToolsExtensions.EncodeMultiStartRequest(ref startRequestBuffer,
-                SteamManagerExtended.startParameters);
-        }
-
         private void Awake()
         {
             Log = Logger;
-            Log.LogInfo("secret number 5");
+            Log.LogInfo("Logger Loaded");
 
-            HarmonyFileLog.Enabled = true;
-            Log.LogInfo(HarmonyFileLog.FileWriterPath);
-            Constants.MAX_PLAYERS = 8; // TODO: This can be increased a ton possibly?
+            // Configuration
+            maxPlayers = Config.Bind("General", "MaxPlayers", 8, "The maximum number of players allowed in a lobby.");
+            Constants.MAX_PLAYERS = maxPlayers.Value;
+
 
             Host.recordReplay = false; // Disable replay recording since I'm lazy to implement it
             Logger.LogInfo("Disabled replay recording");
@@ -162,9 +119,8 @@ namespace MorePlayers
             patcher.AddTranspiler(startTranspiler);
             patcher.Patch();
 
-            Logger.LogInfo($"More players aquired!!");
+            Logger.LogInfo($"More players acquired! Max players: {Constants.MAX_PLAYERS}");
         }
-
 
         private void OnDestroy()
         {
@@ -174,12 +130,12 @@ namespace MorePlayers
 
     [HarmonyPatch(typeof(printText))]
     [HarmonyPatch("Awake")]
-    public static class YourPatchClass
+    public static class PatchVersion
     {
-        public static void Postfix()
+        public static void Prefix()
         {
             Main.Log.LogInfo($"Found version {Constants.version}");
-            Constants.version += "-mpmodded";
+            Constants.version += "-More Players Modded";
             Main.Log.LogInfo($"Patched to version {Constants.version}");
         }
     }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoreMultiPlayer", "MoreMultiPlayer.csproj", "{D784E83D-8494-4B5C-A609-C7EDE70D512C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MorePlayers", "MorePlayers.csproj", "{D784E83D-8494-4B5C-A609-C7EDE70D512C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
