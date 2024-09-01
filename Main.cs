@@ -8,6 +8,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
+using Steamworks;
 
 namespace MorePlayers
 {
