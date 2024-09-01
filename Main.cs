@@ -17,7 +17,7 @@ namespace MorePlayers
     {
         internal static ManualLogSource Log;
         private Harmony harmony;
-
+        private bool isVisible = true;
         private ConfigEntry<int> maxPlayers;
 
         private static IEnumerable<CodeInstruction> SteamManagerCreateFriendLobbyPatch(
