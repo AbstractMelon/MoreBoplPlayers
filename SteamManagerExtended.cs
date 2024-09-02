@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -47,12 +47,12 @@ namespace MorePlayers
             for (int i = 1; i < SteamManagerExtended.startParameters.nrOfPlayers; i++)
             {
                 Main.Log.LogInfo($"{i} <? {__instance.connectedPlayers.Count}");
-                SteamManagerExtended.startParameters.p_ids[i] = __instance.connectedPlayers[i-1].id;
-                SteamManagerExtended.startParameters.p_teams[i] = (byte)__instance.connectedPlayers[i-1].lobby_team;
-                SteamManagerExtended.startParameters.p_colors[i] = (byte)__instance.connectedPlayers[i-1].lobby_color;
-                SteamManagerExtended.startParameters.p_ability1s[i] = __instance.connectedPlayers[i-1].lobby_ability1;
-                SteamManagerExtended.startParameters.p_ability2s[i] = __instance.connectedPlayers[i-1].lobby_ability2;
-                SteamManagerExtended.startParameters.p_ability3s[i] = __instance.connectedPlayers[i-1].lobby_ability3;
+                SteamManagerExtended.startParameters.p_ids[i] = __instance.connectedPlayers[i - 1].id;
+                SteamManagerExtended.startParameters.p_teams[i] = (byte)__instance.connectedPlayers[i - 1].lobby_team;
+                SteamManagerExtended.startParameters.p_colors[i] = (byte)__instance.connectedPlayers[i - 1].lobby_color;
+                SteamManagerExtended.startParameters.p_ability1s[i] = __instance.connectedPlayers[i - 1].lobby_ability1;
+                SteamManagerExtended.startParameters.p_ability2s[i] = __instance.connectedPlayers[i - 1].lobby_ability2;
+                SteamManagerExtended.startParameters.p_ability3s[i] = __instance.connectedPlayers[i - 1].lobby_ability3;
             }
 
             byte b = (byte)(SteamManager.instance.dlc.HasDLC() ? 1u : 0u);
@@ -215,6 +215,15 @@ namespace MorePlayers
             }
 
             return false;
+        }
+        [HarmonyPatch(typeof(SteamManager))]
+        [HarmonyPatch("KickPlayer")]
+        static class SteamManagerPatch_KickPlayer
+        {
+            static void Prefix(ref int connectedPlayerIndex, SteamManager __instance)
+            {
+                connectedPlayerIndex = Mathf.Clamp(connectedPlayerIndex, 0, __instance.connectedPlayers.Count - 1);
+            }
         }
     }
 }
