@@ -11,6 +11,7 @@ using HarmonyLib;
 using HarmonyLib.Tools;
 using Steamworks;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static Mono.Security.X509.X520;
 
 namespace MoreMultiPlayer
@@ -108,6 +109,22 @@ namespace MoreMultiPlayer
 
             GUI.color = UnityEngine.Color.white;
 
+            foreach (var player in SteamManager.instance.connectedPlayers) // avatar handling
+            {
+                if (player.hasAvatar)
+                {
+                    float yPosition = 15;
+                    float xPosition = 90;
+                    float width = 82;
+                    float height = 82;
+                    float spacing = 50;
+                    GUI.DrawTexture(new Rect(xPosition, yPosition, width, height), player.avatar);
+
+
+                    xPosition +=  spacing;
+                }
+            }
+
 
             if (isVisible)
             {
@@ -118,13 +135,13 @@ namespace MoreMultiPlayer
 
                 GUI.Label(new Rect(25, 95, 300, 30), $"MoreBopl Leaderboard \n{players} Player(s)", headerStyle);
 
+
+
                 for (int i = 0; i < playerInfoList.Count; i++)
                 {
-                    SteamId steamId = playerInfoList[i].steamId;
                     string userColor = playerInfoList[i].Color.ToString().Replace("Slime (UnityEngine.Material)", "");
                     string fixedUserColor = char.ToUpper(userColor[0]) + userColor.Substring(1);
                     string causeOfDeath = playerInfoList[i].CauseOfDeath.ToString();
-                    var connectedPlayer = i < SteamManager.instance.connectedPlayers.Count ? SteamManager.instance.connectedPlayers[i] : null;
 
                     if (causeOfDeath == "NotDeadYet")
                     {
@@ -133,26 +150,27 @@ namespace MoreMultiPlayer
 
                     float yPosition = 130 + i * 30;
 
-                    string displayColor = connectedPlayer != null ? connectedPlayer.steamName : fixedUserColor;
-
-                    GUI.Label(new Rect(25, yPosition, 600, 30), $"{displayColor}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {causeOfDeath}", style);
+                    GUI.Label(new Rect(70, yPosition, 600, 30), $"{fixedUserColor}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {causeOfDeath}", style);
                 }
             }
         }
-
-        // Helper function to create a 1x1 texture with a specified color
-        Texture2D MakeTex(int width, int height, Color col)
+        Sprite ConvertTexture2DToSprite(Texture2D texture)
         {
-            Color[] pix = new Color[width * height];
-            for (int i = 0; i < pix.Length; i++)
-            {
-                pix[i] = col;
-            }
-            Texture2D result = new Texture2D(width, height);
-            result.SetPixels(pix);
-            result.Apply();
-            return result;
+            return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         }
+
+        Texture2D MakeTex(int width, int height, Color col)
+            {
+                Color[] pix = new Color[width * height];
+                for (int i = 0; i < pix.Length; i++)
+                {
+                    pix[i] = col;
+                }
+                Texture2D result = new Texture2D(width, height);
+                result.SetPixels(pix);
+                result.Apply();
+                return result;
+            }
 
         private void Awake()
         {
