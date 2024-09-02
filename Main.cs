@@ -10,21 +10,16 @@ using HarmonyLib;
 using HarmonyLib.Tools;
 using Steamworks;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace MorePlayers
+namespace MoreMultiPlayer
 {
     [BepInPlugin("com.MorePlayersTeam.MorePlayers", "MorePlayers", "1.0.0")]
-    public class Main : BaseUnityPlugin
-
+    public class Plugin : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
         private Harmony harmony;
         private bool isVisible = true;
-
-        public static ConfigFile config;
-        public static ConfigEntry<int> maxPlayers;
-
+        private ConfigEntry<int> maxPlayers;
 
         private static IEnumerable<CodeInstruction> SteamManagerCreateFriendLobbyPatch(
             IEnumerable<CodeInstruction> instructions)
@@ -90,29 +85,35 @@ namespace MorePlayers
                 Log.LogError("Failed to patch GameSessionHandler.LoadNextLevelScene");
             }
         }
-        
+
         void OnGUI() // Adds a leaderboard and probably other GUI stuff in the future
         {
             var players = PlayerHandler.Get().NumberOfPlayers(); // Value
             var playerInfoList = PlayerHandler.Get().PlayerList(); // List
             GUI.color = new UnityEngine.Color(0, 0, 0, 0.5f);
+
             GUIStyle style = new GUIStyle(); // The style of the GUI so it looks pretty
             style.fontSize = 20;
-            style.normal.textColor = Color.white;
-            GUIStyle style2 = new GUIStyle(); // The style of the GUI so it looks pretty
-            style2.fontSize = 20;
-            style2.normal.textColor = Color.white;
-
-            if (GUI.Button(new Rect(350, 60, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
+            style.normal.textColor = UnityEngine.Color.white;
+            if (GUI.Button(new Rect(350, 50, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
             {
                 if (isVisible == false)
                 {
                     isVisible = true;
-                } else if (isVisible == true)
+                }
+                else if (isVisible == true)
                 {
                     isVisible = false;
                 }
             }
+            if (isVisible)
+            {
+                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style);
+                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
+            }
+
+
+
 
             for (int i = 0; i < playerInfoList.Count; i++) // Does the leaderboard stuff
             {
@@ -123,27 +124,31 @@ namespace MorePlayers
                 else
 
                 {
-                    string userColor = playerInfoList[i].Color.ToString().Replace("Slime (UnityEngine.Material)", "");
-                    string fixedUserColor = char.ToUpper(userColor[0]) + userColor.Substring(1);
-                    float yPosition = 130 + i * 25;
 
-                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {fixedUserColor} ({i + 1}): Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+                    SteamId steamId = playerInfoList[i].steamId;
+
+                    var username = Steamworks.SteamClient.Name;
+                    var avatar = Steamworks.SteamFriends.GetMediumAvatarAsync(playerInfoList[i].steamId);
+
+                    float yPosition = 130 + i * 25;
+                    Plugin.Log.LogInfo(avatar.ToString());
+                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {username}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
                 }
 
             }
-
-
-
-            if (isVisible)
-            {
-                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style2);
-                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
-            }
-
-            
-
-
         }
+
+        private void Update()
+        {
+            if (Constants.version != $"{Constants.version} -More Players Modded")
+            {
+                Constants.version = $"{Constants.version} -More Players Modded";
+            } else
+            {
+                return;
+            }
+        }
+
         private void Awake()
         {
             Log = Logger;
@@ -172,7 +177,7 @@ namespace MorePlayers
             var stateMachineAttr = targetMethod.GetCustomAttribute<AsyncStateMachineAttribute>();
             var moveNextMethod =
                 stateMachineAttr.StateMachineType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance);
-            var startTranspiler = typeof(Main).GetMethod(nameof(SteamManagerCreateFriendLobbyPatch),
+            var startTranspiler = typeof(Plugin).GetMethod(nameof(SteamManagerCreateFriendLobbyPatch),
                 BindingFlags.Static | BindingFlags.NonPublic);
 
             var patcher = harmony.CreateProcessor(moveNextMethod);
@@ -194,9 +199,9 @@ namespace MorePlayers
     {
         public static void Prefix()
         {
-            Main.Log.LogInfo($"Found version {Constants.version}");
-            Constants.version += "-More Players Modded";
-            Main.Log.LogInfo($"Patched to version {Constants.version}");
+            Plugin.Log.LogInfo($"Found version {Constants.version}");
+            Constants.version = $"{Constants.version} -More Players Modded";
+            Plugin.Log.LogInfo($"Patched to version {Constants.version}");
         }
     }
 }
