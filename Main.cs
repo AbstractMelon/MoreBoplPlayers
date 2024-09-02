@@ -92,11 +92,14 @@ namespace MorePlayers
             var players = PlayerHandler.Get().NumberOfPlayers(); // Value
             var playerInfoList = PlayerHandler.Get().PlayerList(); // List
             GUI.color = new UnityEngine.Color(0, 0, 0, 0.5f);
-
             GUIStyle style = new GUIStyle(); // The style of the GUI so it looks pretty
             style.fontSize = 20;
-            style.normal.textColor = UnityEngine.Color.white;
-            if (GUI.Button(new Rect(350, 50, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
+            style.normal.textColor = Color.white;
+            GUIStyle style2 = new GUIStyle(); // The style of the GUI so it looks pretty
+            style2.fontSize = 20;
+            style2.normal.textColor = Color.white;
+
+            if (GUI.Button(new Rect(350, 60, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
             {
                 if (isVisible == false)
                 {
@@ -106,30 +109,36 @@ namespace MorePlayers
                     isVisible = false;
                 }
             }
-            if (isVisible)
-            {
-                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style);
-                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
-            }
-
-            
-
 
             for (int i = 0; i < playerInfoList.Count; i++) // Does the leaderboard stuff
             {
                 if (isVisible == false)
                 {
                     return;
-                } else
+                }
+                else
 
                 {
-                    
+                    string userColor = playerInfoList[i].Color.ToString().Replace("Slime (UnityEngine.Material)", "");
+                    string fixedUserColor = char.ToUpper(userColor[0]) + userColor.Substring(1);
                     float yPosition = 130 + i * 25;
-                    
-                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {i + 1}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+
+                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {fixedUserColor} ({i + 1}): Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
                 }
 
             }
+
+
+
+            if (isVisible)
+            {
+                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style2);
+                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
+            }
+
+            
+
+
         }
 
         private void Awake()
