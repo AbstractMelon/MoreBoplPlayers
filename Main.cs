@@ -16,11 +16,15 @@ namespace MorePlayers
 {
     [BepInPlugin("com.MorePlayersTeam.MorePlayers", "MorePlayers", "1.0.0")]
     public class Main : BaseUnityPlugin
+
     {
         internal static ManualLogSource Log;
         private Harmony harmony;
         private bool isVisible = true;
-        private ConfigEntry<int> maxPlayers;
+
+        public static ConfigFile config;
+        public static ConfigEntry<int> maxPlayers;
+
 
         private static IEnumerable<CodeInstruction> SteamManagerCreateFriendLobbyPatch(
             IEnumerable<CodeInstruction> instructions)
@@ -140,7 +144,6 @@ namespace MorePlayers
 
 
         }
-
         private void Awake()
         {
             Log = Logger;
