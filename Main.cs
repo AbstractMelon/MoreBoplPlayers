@@ -127,12 +127,11 @@ namespace MoreMultiPlayer
 
                     SteamId steamId = playerInfoList[i].steamId;
 
-                    var username = Steamworks.SteamClient.Name;
-                    var avatar = Steamworks.SteamFriends.GetMediumAvatarAsync(playerInfoList[i].steamId);
+                    string userColor = playerInfoList[i].Color.ToString().Replace("Slime (UnityEngine.Material)", "");
+                    string fixedUserColor = char.ToUpper(userColor[0]) + userColor.Substring(1);
 
                     float yPosition = 130 + i * 25;
-                    Plugin.Log.LogInfo(avatar.ToString());
-                    GUI.Label(new Rect(25, yPosition, 300, 30), $"Player {username}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+                    GUI.Label(new Rect(25, yPosition, 300, 30), $"{fixedUserColor}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
                 }
 
             }
