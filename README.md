@@ -1,3 +1,4 @@
+# More Bopl Players
 Allows people to play through steam with 4+ players, it's currently fixed at 8 but nowhere in the code should this be assumed, this can be increased in the Plugin constructor. 
 Tested with version 2.3.3
 
