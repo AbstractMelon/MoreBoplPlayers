@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ using HarmonyLib;
 using HarmonyLib.Tools;
 using Steamworks;
 using UnityEngine;
+using static Mono.Security.X509.X520;
 
 namespace MoreMultiPlayer
 {
@@ -86,57 +88,71 @@ namespace MoreMultiPlayer
             }
         }
 
-        void OnGUI() // Adds a leaderboard and probably other GUI stuff in the future
+        void OnGUI()
         {
-            var players = PlayerHandler.Get().NumberOfPlayers(); // Value
-            var playerInfoList = PlayerHandler.Get().PlayerList(); // List
-            GUI.color = new UnityEngine.Color(0, 0, 0, 0.5f);
+            var players = PlayerHandler.Get().NumberOfPlayers();
+            var playerInfoList = PlayerHandler.Get().PlayerList();
 
-            GUIStyle style = new GUIStyle(); // The style of the GUI so it looks pretty
+            GUI.color = new UnityEngine.Color(0, 0, 0, 0.7f);
+
+            GUIStyle style = new GUIStyle();
             style.fontSize = 20;
             style.normal.textColor = UnityEngine.Color.white;
-            if (GUI.Button(new Rect(350, 50, 100, 30), "Toggle Visibility")) // Adds Toggle Visibility Button
+            style.alignment = TextAnchor.MiddleLeft;
+            style.padding = new RectOffset(10, 10, 5, 5);
+
+            if (GUI.Button(new Rect(50, 135 + playerInfoList.Count * 30, 150, 40), "Toggle Visibility"))
             {
-                if (isVisible == false)
-                {
-                    isVisible = true;
-                }
-                else if (isVisible == true)
-                {
-                    isVisible = false;
-                }
+                isVisible = !isVisible;
             }
+
+            GUI.color = UnityEngine.Color.white;
+
+
             if (isVisible)
             {
-                GUI.Label(new Rect(25, 100, 300, 30), $"MoreBopl is running.. Currently: {players} players", style);
-                GUI.DrawTexture(new Rect(0, 100, 650, 25 + playerInfoList.Count * 25), Texture2D.whiteTexture);
-            }
+                GUI.Box(new Rect(20, 90, 640, 40 + playerInfoList.Count * 30), GUIContent.none);
 
+                GUIStyle headerStyle = new GUIStyle(style);
+                headerStyle.fontStyle = FontStyle.Bold;
 
+                GUI.Label(new Rect(25, 95, 300, 30), $"MoreBopl Leaderboard \n{players} Player(s)", headerStyle);
 
-
-            for (int i = 0; i < playerInfoList.Count; i++) // Does the leaderboard stuff
-            {
-                if (isVisible == false)
+                for (int i = 0; i < playerInfoList.Count; i++)
                 {
-                    return;
-                }
-                else
-
-                {
-
                     SteamId steamId = playerInfoList[i].steamId;
-
                     string userColor = playerInfoList[i].Color.ToString().Replace("Slime (UnityEngine.Material)", "");
                     string fixedUserColor = char.ToUpper(userColor[0]) + userColor.Substring(1);
+                    string causeOfDeath = playerInfoList[i].CauseOfDeath.ToString();
+                    var connectedPlayer = i < SteamManager.instance.connectedPlayers.Count ? SteamManager.instance.connectedPlayers[i] : null;
 
-                    float yPosition = 130 + i * 25;
-                    GUI.Label(new Rect(25, yPosition, 300, 30), $"{fixedUserColor}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {playerInfoList[i].CauseOfDeath}", style);
+                    if (causeOfDeath == "NotDeadYet")
+                    {
+                        causeOfDeath = "Alive";
+                    }
+
+                    float yPosition = 130 + i * 30;
+
+                    string displayColor = connectedPlayer != null ? connectedPlayer.steamName : fixedUserColor;
+
+                    GUI.Label(new Rect(25, yPosition, 600, 30), $"{displayColor}: Kills: {playerInfoList[i].Kills}, Deaths: {playerInfoList[i].Deaths}, Cause of Death: {causeOfDeath}", style);
                 }
-
             }
         }
 
+        // Helper function to create a 1x1 texture with a specified color
+        Texture2D MakeTex(int width, int height, Color col)
+        {
+            Color[] pix = new Color[width * height];
+            for (int i = 0; i < pix.Length; i++)
+            {
+                pix[i] = col;
+            }
+            Texture2D result = new Texture2D(width, height);
+            result.SetPixels(pix);
+            result.Apply();
+            return result;
+        }
 
         private void Awake()
         {
