@@ -138,16 +138,6 @@ namespace MoreMultiPlayer
             }
         }
 
-        private void Update()
-        {
-            if (Constants.version != $"{Constants.version} -More Players Modded")
-            {
-                Constants.version = $"{Constants.version} -More Players Modded";
-            } else
-            {
-                return;
-            }
-        }
 
         private void Awake()
         {
