@@ -8,3 +8,4 @@ Tested with version 2.3.3
 
 # Improvements to be made
 The packet system is a bit... questionable. A library to add custom packets to abstract this away would improve stability across updates. If a bopl update adds a packet with an unlucky size it breaks the mod.
+test
