@@ -17,7 +17,7 @@ using static Mono.Security.X509.X520;
 namespace MoreMultiPlayer
 {
     [BepInPlugin("com.MorePlayersTeam.MorePlayers", "MorePlayers", "1.0.0")]
-    public class Plugin : BaseUnityPlugin
+    public class Main : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
         private Harmony harmony;
@@ -109,19 +109,24 @@ namespace MoreMultiPlayer
 
             GUI.color = UnityEngine.Color.white;
 
+
+
             foreach (var player in SteamManager.instance.connectedPlayers) // avatar handling
             {
                 if (player.hasAvatar)
                 {
-                    float yPosition = 15;
+                    float yPosition = 10;
                     float xPosition = 90;
                     float width = 82;
                     float height = 82;
                     float spacing = 50;
+
                     GUI.DrawTexture(new Rect(xPosition, yPosition, width, height), player.avatar);
 
-
-                    xPosition +=  spacing;
+                    xPosition += spacing;
+                } else
+                {
+                    Main.Log.LogWarning($"{player.steamName}, does not have an avatar, this can cause issues. Please set an avatar ASAP.");
                 }
             }
 
@@ -200,7 +205,7 @@ namespace MoreMultiPlayer
             var stateMachineAttr = targetMethod.GetCustomAttribute<AsyncStateMachineAttribute>();
             var moveNextMethod =
                 stateMachineAttr.StateMachineType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance);
-            var startTranspiler = typeof(Plugin).GetMethod(nameof(SteamManagerCreateFriendLobbyPatch),
+            var startTranspiler = typeof(Main).GetMethod(nameof(SteamManagerCreateFriendLobbyPatch),
                 BindingFlags.Static | BindingFlags.NonPublic);
 
             var patcher = harmony.CreateProcessor(moveNextMethod);
@@ -214,7 +219,18 @@ namespace MoreMultiPlayer
         {
             harmony.UnpatchSelf();
         }
+
+        private void Update()
+        {
+            if (!SteamClient.IsValid)
+            {
+                Main.Log.LogFatal("PIRATED GAME DETECTED, PLEASE INSTALL THE FULL GAME! MODS WILL NOT WORK WITHOUT IT AND YOU WILL SUPPORT THE DEVELOPER!");
+                Application.Quit();
+            }
+        }
+
     }
+
 
     [HarmonyPatch(typeof(printText))]
     [HarmonyPatch("Awake")]
@@ -222,9 +238,9 @@ namespace MoreMultiPlayer
     {
         public static void Prefix()
         {
-            Plugin.Log.LogInfo($"Found version {Constants.version}");
+            Main.Log.LogInfo($"Found version {Constants.version}");
             Constants.version = $"{Constants.version} -More Players Modded";
-            Plugin.Log.LogInfo($"Patched to version {Constants.version}");
+            Main.Log.LogInfo($"Patched to version {Constants.version}");
         }
     }
 }
