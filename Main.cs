@@ -124,7 +124,8 @@ namespace MoreMultiPlayer
                     GUI.DrawTexture(new Rect(xPosition, yPosition, width, height), player.avatar);
 
                     xPosition += spacing;
-                } else
+                }
+                else
                 {
                     Main.Log.LogWarning($"{player.steamName}, does not have an avatar, this can cause issues. Please set an avatar ASAP.");
                 }
@@ -165,17 +166,17 @@ namespace MoreMultiPlayer
         }
 
         Texture2D MakeTex(int width, int height, Color col)
+        {
+            Color[] pix = new Color[width * height];
+            for (int i = 0; i < pix.Length; i++)
             {
-                Color[] pix = new Color[width * height];
-                for (int i = 0; i < pix.Length; i++)
-                {
-                    pix[i] = col;
-                }
-                Texture2D result = new Texture2D(width, height);
-                result.SetPixels(pix);
-                result.Apply();
-                return result;
+                pix[i] = col;
             }
+            Texture2D result = new Texture2D(width, height);
+            result.SetPixels(pix);
+            result.Apply();
+            return result;
+        }
 
         private void Awake()
         {
@@ -222,9 +223,10 @@ namespace MoreMultiPlayer
 
         private void Update()
         {
-            if (!SteamClient.IsValid)
+            if (SteamClient.Name == "Noob" || !SteamClient.IsValid)
             {
                 Main.Log.LogFatal("PIRATED GAME DETECTED, PLEASE INSTALL THE FULL GAME! MODS WILL NOT WORK WITHOUT IT AND YOU WILL SUPPORT THE DEVELOPER!");
+                Application.OpenURL("https://store.steampowered.com/app/1686940/Bopl_Battle/");
                 Application.Quit();
             }
         }
